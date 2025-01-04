@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мессенджер</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #36393f;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .servers-list {
+            width: 72px;
+            background-color: #202225;
+            padding: 12px;
+        }
+
+        .channels {
+            width: 240px;
+            background-color: #2f3136;
+            padding: 12px;
+        }
+
+        .chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 12px;
+            background-color: #36393f;
+            border-bottom: 1px solid #202225;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message-input {
+            padding: 12px;
+            background-color: #40444b;
+        }
+
+        .message-input input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: none;
+            background-color: #40444b;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="servers-list">
+            <!-- Список серверов -->
+        </div>
+        <div class="channels">
+            <!-- Список каналов -->
+        </div>
+        <div class="chat">
+            <div class="chat-header">
+                <h3># общий</h3>
+            </div>
+            <div class="messages" id="messages">
+                <!-- Сообщения будут добавляться здесь -->
+            </div>
+            <div class="message-input">
+                <input type="text" placeholder="Написать сообщение..." id="messageInput">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        
+        // Функция для сохранения сообщений в localStorage
+        function saveMessages(messages) {
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+        }
+
+        // Функция для загрузки сообщений из localStorage
+        function loadMessages() {
+            const saved = localStorage.getItem('chatMessages');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        // Загружаем существующие сообщения
+        let messages = loadMessages();
+        
+        // Отображаем существующие сообщения
+        messages.forEach(msg => {
+            const messageElement = createMessageElement(msg);
+            messagesContainer.appendChild(messageElement);
+        });
+
+        // Создаем элемент сообщения
+        function createMessageElement(message) {
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.innerHTML = `
+                <div>
+                    <strong>${message.author}</strong>
+                    <small>${new Date(message.timestamp).toLocaleString()}</small>
+                    <div>${message.content}</div>
+                </div>
+            `;
+            return div;
+        }
+
+        // Обработчик отправки сообщения
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && messageInput.value.trim()) {
+                const newMessage = {
+                    author: 'Пользователь', // В реальном приложении здесь будет имя авторизованного пользователя
+                    content: messageInput.value.trim(),
+                    timestamp: new Date().toISOString()
+                };
+
+                messages.push(newMessage);
+                saveMessages(messages);
+
+                const messageElement = createMessageElement(newMessage);
+                messagesContainer.appendChild(messageElement);
+                
+                messageInput.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
